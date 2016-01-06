@@ -1,0 +1,39 @@
+{
+  "name": "object-schema",
+  "version": "1.0.0",
+  "description": "A tool for defining and using object schemas that can be used to normalize and validate object configurations.",
+  "main": "index.js",
+  "bin": {
+    "object-schema": "index.js"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "tests"
+  },
+  "dependencies": {
+    "custom-error-generator": "^7.0.0",
+    "is": "^3.1.0",
+    "tape": "^4.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node tests/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gi60s/object-schema.git"
+  },
+  "keywords": [
+    "object",
+    "schema",
+    "configuration",
+    "validate",
+    "validation"
+  ],
+  "author": "James Speirs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Gi60s/object-schema/issues"
+  },
+  "homepage": "https://github.com/Gi60s/object-schema#readme"
+}
