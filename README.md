@@ -1,4 +1,4 @@
-# object-schema
+# object-schemata
 
 At times we want to pass configuration object as a parameter into a function, but we still want to impose limits on that configuration object. Some of it's properties might be required, or some properties might need to be validated. And how do you go about handling errors when the configuration that was passed in doesn't fit those requirements?
 
@@ -7,12 +7,12 @@ This module seeks to solve those problems.
 ## Installation
 
 ```sh
-$ npm install object-schema
+$ npm install object-schemata
 ```
 
 ## Usage Example
 ```js
-var schema = require('object-schema');
+var schema = require('object-schemata');
 
 // define a schema
 var personSchema = schema({
@@ -63,7 +63,7 @@ The schema configuration consists of a property name and its associated schema c
 Once you have created a schema you have access to these functions below. Each of these examples are preceeded by this code:
 
 ```js
-var schema = require('object-schema');
+var schema = require('object-schemata');
 
 var personSchema = schema({
     age: {
