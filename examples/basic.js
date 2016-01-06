@@ -1,4 +1,4 @@
-var schema = require('../bin/index');
+var schema = require('../index');
 
 var personSchema;
 var result;

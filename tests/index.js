@@ -1,7 +1,6 @@
 "use strict";
 
-
-var Schema      = require('../bin/index');
+var Schema      = require('../index');
 var test        = require('tape');
 
 var schemaDef = {
@@ -107,11 +106,11 @@ test('normalize', function(t) {
     t.end();
 });
 
-test.only('validate', function(t) {
+test('validate', function(t) {
     var config = Schema(schemaDef);
     var result;
 
-    /*result = config.validate({ foo: 65 });
+    result = config.validate({ foo: 65 });
     t.ok(result instanceof Error && result.code === 'EREQ', 'required error');
 
     result = config.validate({ foo: 65, bar: 'b' });
@@ -133,7 +132,7 @@ test.only('validate', function(t) {
     t.ok(result === true, 'valid 2');
 
     result = config.validate({ bar: 'bar', baz: void 0 });
-    t.ok(result instanceof Error && result.code === 'EVALID', 'invalid errors 4');*/
+    t.ok(result instanceof Error && result.code === 'EVALID', 'invalid errors 4');
 
     result = config.validate({ bar: 'bar', baz: { age: - 1 } });
     t.ok(result instanceof Error && result.code === 'EVALID', 'invalid errors 5');
