@@ -11,6 +11,11 @@ var Err = {
     required: customError('OSError EREQ ', { code: 'EREQ' })       //missing required value
 };
 
+/**
+ * Generate a factory that will normalize and validate configuration options against the schema definition.
+ * @param {object} schema
+ * @returns {object}
+ */
 module.exports = function(schema) {
     var factory = {};
     var schematic = {};
