@@ -1,6 +1,6 @@
 {
   "name": "object-schemata",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A tool for defining and using object schemas that can be used to normalize and validate object configurations.",
   "main": "index.js",
   "directories": {
@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "dependencies": {
-    "custom-error-generator": "^7.0.0",
+    "custom-error-instance": "^1.1.1",
     "is": "^3.1.0"
   },
   "devDependencies": {

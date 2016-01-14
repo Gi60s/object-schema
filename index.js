@@ -1,15 +1,14 @@
 "use strict";
-var customError     = require('custom-error-generator');
+var CustomError     = require('custom-error-instance');
 var is              = require('is');
 
-var Err = {
-    conflict: customError('OSError ECONF ', { code: 'ECONF' }),    //default value and required
-    dne: customError('OSError EDNE ', { code: 'EDNE' }),           //does not exist
-    invalid: customError('OSError EVALID ', { code: 'EVALID' }),   //invalid value
-    multiple: customError('OSError EMULT ', { code: 'EMULT' }),    //multiple errors
-    param: customError('OSError EPARAM ', { code: 'EPARAM' }),     //invalid input parameter
-    required: customError('OSError EREQ ', { code: 'EREQ' })       //missing required value
-};
+var Err = CustomError('OSError');
+Err.extend('conflict', { code: 'ECONF' });      //default value and required are mutually exclusive
+Err.extend('dne', { code: 'EDNE' });            //does not exist
+Err.extend('invalid', { code: 'EVALID' });      //invalid value
+Err.extend('multiple', { code: 'EMULT' });      //multiple errors
+Err.extend('param', { code: 'EPARAM' });        //invalid input parameter
+Err.extend('required', { code: 'EREQ' });       //missing required value
 
 /**
  * Generate a factory that will normalize and validate configuration options against the schema definition.
@@ -117,15 +116,19 @@ module.exports = function(schema) {
      * value will be validated against just that property in the schema. If the property name
      * is not specified then the value must be an object that will be tested against the
      * entire schematic.
-     * @returns {*}
+     * @returns {boolean, Error} true if valid, or an Error object if not valid.
      */
     factory.validate = function(propertyName, value) {
         var result;
-        if (arguments.length === 1) {
-            return validateConfiguration(propertyName);
-        } else if (arguments.length >= 2) {
-            result = processValue(propertyName, value);
-            return result.error ? new Err.invalid(result.error) : true;
+        try {
+            if (arguments.length === 1) {
+                return validateConfiguration(propertyName);
+            } else if (arguments.length >= 2) {
+                result = processValue(propertyName, value);
+                return result.error ? new Err.invalid(result.error) : true;
+            }
+        } catch (e) {
+            return e;
         }
     };
 
