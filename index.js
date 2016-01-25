@@ -230,3 +230,10 @@ module.exports = function(schema) {
 
     return factory;
 };
+
+Object.defineProperty(module.exports, 'error', {
+    enumerable: false,
+    configurable: true,
+    value: Err,
+    writable: false
+});
