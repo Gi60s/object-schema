@@ -10,6 +10,7 @@ Err.multiple = CustomError(Err, { code: 'EMULT' });      //multiple errors
 Err.param = CustomError(Err, { code: 'EPARAM' });        //invalid input parameter
 Err.required = CustomError(Err, { code: 'EREQ' });       //missing required value
 
+
 /**
  * Generate a factory that will normalize and validate configuration options against the schema definition.
  * @param {object} schema
