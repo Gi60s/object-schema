@@ -103,6 +103,10 @@ test('normalize', function(t) {
     result = config.normalize({ foo: 55.7, bar: 'hello', jim: 'jim' });
     t.ok(Object.keys(result).length === 2, 'return only defined keys');
 
+    t.throws(function() {
+        config.normalize({})
+    }, 'missing required');
+
     t.end();
 });
 

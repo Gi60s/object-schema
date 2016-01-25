@@ -97,7 +97,7 @@ module.exports = function(schema) {
 
         //validate the configuration
         error = factory.validate(copy);
-        if (is.error(error)) throw error;
+        if (error instanceof Error) throw error;
 
         //build the normalized result
         result = {};
