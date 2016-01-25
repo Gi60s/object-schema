@@ -3,12 +3,13 @@ var CustomError     = require('custom-error-instance');
 var is              = require('is');
 
 var Err = CustomError('OSError');
-Err.conflict = CustomError(Err, { code: 'ECONF' });      //default value and required are mutually exclusive
-Err.dne = CustomError(Err, { code: 'EDNE' });            //does not exist
-Err.invalid = CustomError(Err, { code: 'EVALID' });      //invalid value
-Err.multiple = CustomError(Err, { code: 'EMULT' });      //multiple errors
-Err.param = CustomError(Err, { code: 'EPARAM' });        //invalid input parameter
-Err.required = CustomError(Err, { code: 'EREQ' });       //missing required value
+Err.config = CustomError(Err, { code: 'ECFG', message: 'Configuration is not an object' });        //config is not an object
+Err.conflict = CustomError(Err, { code: 'ECONF' });     //default value and required are mutually exclusive
+Err.dne = CustomError(Err, { code: 'EDNE' });           //does not exist
+Err.invalid = CustomError(Err, { code: 'EVALID' });     //invalid value
+Err.multiple = CustomError(Err, { code: 'EMULT' });     //multiple errors
+Err.param = CustomError(Err, { code: 'EPARAM' });       //invalid input parameter
+Err.required = CustomError(Err, { code: 'EREQ' });      //missing required value
 
 
 /**
@@ -84,6 +85,9 @@ module.exports = function(schema) {
         var copy = {};
         var error;
         var result;
+
+        // validate input
+        if (!configuration || typeof configuration !== 'object') throw Err.config();
 
         //make a copy of the configuration, injecting default values as needed
         Object.keys(schematic).forEach(function(key) {
