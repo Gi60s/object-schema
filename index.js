@@ -3,12 +3,12 @@ var CustomError     = require('custom-error-instance');
 var is              = require('is');
 
 var Err = CustomError('OSError');
-Err.extend('conflict', { code: 'ECONF' });      //default value and required are mutually exclusive
-Err.extend('dne', { code: 'EDNE' });            //does not exist
-Err.extend('invalid', { code: 'EVALID' });      //invalid value
-Err.extend('multiple', { code: 'EMULT' });      //multiple errors
-Err.extend('param', { code: 'EPARAM' });        //invalid input parameter
-Err.extend('required', { code: 'EREQ' });       //missing required value
+Err.conflict = CustomError(Err, { code: 'ECONF' });      //default value and required are mutually exclusive
+Err.dne = CustomError(Err, { code: 'EDNE' });            //does not exist
+Err.invalid = CustomError(Err, { code: 'EVALID' });      //invalid value
+Err.multiple = CustomError(Err, { code: 'EMULT' });      //multiple errors
+Err.param = CustomError(Err, { code: 'EPARAM' });        //invalid input parameter
+Err.required = CustomError(Err, { code: 'EREQ' });       //missing required value
 
 /**
  * Generate a factory that will normalize and validate configuration options against the schema definition.
