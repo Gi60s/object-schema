@@ -63,6 +63,14 @@ module.exports = function(schema) {
         schematic[key] = result;
     });
 
+    Object.defineProperty(factory, 'configuration', {
+        enumerable: true,
+        configurable: true,
+        get: function() {
+            return JSON.parse(JSON.stringify(schema));
+        }
+    });
+
     /**
      * Get a copy of a defined configuration's schema.
      * @returns {object}
