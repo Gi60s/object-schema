@@ -102,7 +102,7 @@ module.exports = function(schema) {
             var config = schematic[key];
             if (configuration.hasOwnProperty(key)) {
                 copy[key] = configuration[key];
-            } else if (config.defaultValue) {
+            } else if (config.hasOwnProperty('defaultValue')) {
                 copy[key] = config.defaultValue;
             }
         });
