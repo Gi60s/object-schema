@@ -10,6 +10,31 @@ This module seeks to solve those problems.
 $ npm install object-schemata
 ```
 
+## Double Validation
+
+```js
+var s = schema({
+    max: {
+        help: (value, values) => 'Max value ' + value +
+            'must be greater than min value ' + values.min,
+        type: Number, // same as 'number'
+        transform: value => Math.round(value),
+        validate: (value, values) => values ? value > values.min
+    },
+    min: {
+        help: (value, values) => 'Min value ' + value +
+            ' must be less than man value ' + values.min +
+            ' and no less than zero',
+        type: 'number',
+        transform: value => Math.round(value), // transform after validate
+        validate: (value, values) => {
+            if (!values) return value >= 0;
+            return value < values.max;
+        }
+    }
+});
+```
+
 ## Usage Example
 ```js
 var schema = require('object-schemata');
