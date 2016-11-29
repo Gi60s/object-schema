@@ -76,7 +76,7 @@ Schema.prototype.errors = function(configuration) {
         
         // validate that required properties are given a value
         if (schemaItem.required && !configuration.hasOwnProperty(key)) {
-            const help = schemaItem.help();
+            const help = schemaItem.help;
             error = 'Missing required configuration property: ' + key + '.' + (help ? ' ' + help : '');
             errors.push(error);
             
@@ -98,7 +98,7 @@ Schema.prototype.errors = function(configuration) {
         const valid = schemaItem.validate(value, values);
 
         if (valid === false) {
-            errors.push(SchemaItem.errorMessage(schemaItem.name, value, schemaItem.help(value)));
+            errors.push(SchemaItem.errorMessage(schemaItem.name, value, schemaItem.help));
         } else if (typeof valid === 'string') {
             errors.push(SchemaItem.errorMessage(schemaItem.name, value, valid));
         }

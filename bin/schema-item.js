@@ -35,12 +35,8 @@ function SchemaItem (name, configuration) {
     }
 
     // help
-    if (config.help && typeof config.help !== 'string' && typeof config.help !== 'function') throw Error(SchemaItem.errorMessage('help', config.help, 'Expected a string or a function'));
-    if (typeof config.help === 'string') {
-        const helpValue = config.help;
-        config.help = function() { return helpValue; };
-    }
-    if (typeof config.help !== 'function') config.help = emptyHelp;
+    if (config.help && typeof config.help !== 'string') throw Error(SchemaItem.errorMessage('help', config.help, 'Expected a string.'));
+    if (!config.help) config.help = '';
 
     // required
     config.required = !!config.required;
@@ -94,7 +90,7 @@ function SchemaItem (name, configuration) {
             /**
              * @property
              * @name SchemaItem#help
-             * @type {function|undefined}
+             * @type {string}
              */
             value: config.help,
             writable: false
@@ -175,7 +171,7 @@ SchemaItem.prototype.error = function(value) {
 
     if (this.validate) {
         const valid = this.validate(value);
-        if (valid === false) return SchemaItem.errorMessage(this.name, value, this.help(value));
+        if (valid === false) return SchemaItem.errorMessage(this.name, value, this.help);
         if (typeof valid === 'string') return SchemaItem.errorMessage(this.name, value, valid);
     }
 
@@ -188,12 +184,6 @@ SchemaItem.errorMessage = function(property, actual, expected) {
     if (arguments.length > 1) result += ' Received: ' + actual;
     return result;
 };
-
-
-
-function emptyHelp() {
-    return '';
-}
 
 
 
