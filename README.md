@@ -19,11 +19,11 @@ var s = schema({
             'must be greater than min value ' + values.min,
         type: Number, // same as 'number'
         transform: value => Math.round(value),
-        validate: (value, values) => values ? value > values.min
+        validate: (value, values) => values ? value > values.min : true;
     },
     min: {
         help: (value, values) => 'Min value ' + value +
-            ' must be less than man value ' + values.min +
+            ' must be less than max value ' + values.max +
             ' and no less than zero',
         type: 'number',
         transform: value => Math.round(value), // transform after validate
