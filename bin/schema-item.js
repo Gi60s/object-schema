@@ -15,7 +15,6 @@
  *    limitations under the License.
  **/
 'use strict';
-var Schema;
 
 module.exports = SchemaItem;
 
@@ -78,10 +77,7 @@ function SchemaItem (name, configuration) {
 
     // schema
     if (config.schema) {
-        if (!Schema) Schema = require('./schema');
-        if (typeof config.schema !== 'object' || 
-            (config.schema.constructor !== Object && !(config.schema instanceof Schema))) {
-            
+        if (typeof config.schema !== 'object' || config.schema.constructor !== Object) {
             const err = Error(SchemaItem.errorMessage('schema', config.schema, 'Expected a plain object or an object-schemata object.'));
             err.code = 'EIIPT';
             throw err;
