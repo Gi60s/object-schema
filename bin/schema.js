@@ -148,7 +148,11 @@ Schema.prototype.normalize = function(configuration) {
  */
 Schema.prototype.validate = function(configuration) {
     const errors = this.errors(configuration);
-    if (errors.length > 0) throw Error('Configuration has one or more errors:\n\t' + errors.join('\n\t'));
+    if (errors.length > 0) {
+        const err = Error('Configuration has one or more errors:\n\t' + errors.join('\n\t'));
+        err.code = 'ESCFG';
+        throw err;
+    }
 };
 
 function copy(value, map) {

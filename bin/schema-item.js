@@ -31,24 +31,38 @@ function SchemaItem (name, configuration) {
 
     // default value
     if (config.hasOwnProperty('default')) {
-        if (config.required) throw Error('Invalid configuration for property: ' + name + '. Cannot make required and provide a default value.');
+        if (config.required) {
+            const err = Error('Invalid configuration for property: ' + name + '. Cannot make required and provide a default value.');
+            err.code = 'EICONF';
+            throw err;
+        }
     }
 
     // help
-    if (config.help && typeof config.help !== 'string') throw Error(SchemaItem.errorMessage('help', config.help, 'Expected a string.'));
+    if (config.help && typeof config.help !== 'string') {
+        const err = Error(SchemaItem.errorMessage('help', config.help, 'Expected a string.'));
+        err.code = 'EIIPT';
+        throw err;
+    }
     if (!config.help) config.help = '';
 
     // required
     config.required = !!config.required;
 
     // transform
-    if (config.transform && typeof config.transform !== 'function') throw Error(SchemaItem.errorMessage('transform', config.transform, 'Expected a function'));
+    if (config.transform && typeof config.transform !== 'function') {
+        const err = Error(SchemaItem.errorMessage('transform', config.transform, 'Expected a function'));
+        err.code = 'EIIPT';
+        throw err;
+    }
 
     // type
     if (config.type) {
         const types = ['boolean', 'function', 'number', 'string', 'symbol', 'object'];
         if (typeof config.type !== 'function' && types.indexOf(config.type) === -1) {
-            throw Error(SchemaItem.errorMessage('type', config.type, 'Expected a function or one of: ' + types.join(', ')));
+            const err = Error(SchemaItem.errorMessage('type', config.type, 'Expected a function or one of: ' + types.join(', ')));
+            err.code = 'EIIPT';
+            throw err;
         }
         switch (config.type) {
             case Boolean:   config.type = 'boolean';    break;
@@ -61,7 +75,11 @@ function SchemaItem (name, configuration) {
     }
 
     // validate
-    if (config.validate && typeof config.validate !== 'function') throw Error(SchemaItem.errorMessage('validate', config.validate, 'Expected a function'));
+    if (config.validate && typeof config.validate !== 'function') {
+        const err = Error(SchemaItem.errorMessage('validate', config.validate, 'Expected a function'));
+        err.code = 'EIIPT';
+        throw err;
+    }
 
     // define properties
     Object.defineProperties(schemaItem, {
@@ -193,8 +211,6 @@ SchemaItem.errorMessage = function(property, actual, expected) {
  * @returns {number}
  */
 function callbackArguments(callback) {
-    if (typeof callback !== 'function') throw Error('Expected a function.');
-
     const rx = /^(?:function)?\s?\(([\s\S]*?)\)/;
     const match = rx.exec(callback.toString());
 
