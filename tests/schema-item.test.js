@@ -67,17 +67,51 @@ describe('schema-item', function() {
                 expect(e.code).to.equal('EIIPT');
             }
         });
+
+        describe('converts primitive functions to strings', function() {
+
+            it('Boolean', function() {
+                const item = SchemaItem('foo', { type: Boolean });
+                expect(item.type).to.equal('boolean');
+            });
+
+            it('Function', function() {
+                const item = SchemaItem('foo', { type: Function });
+                expect(item.type).to.equal('function');
+            });
+
+            it('Number', function() {
+                const item = SchemaItem('foo', { type: Number });
+                expect(item.type).to.equal('number');
+            });
+
+            it('String', function() {
+                const item = SchemaItem('foo', { type: String });
+                expect(item.type).to.equal('string');
+            });
+
+            it('Symbol', function() {
+                const item = SchemaItem('foo', { type: Symbol });
+                expect(item.type).to.equal('symbol');
+            });
+
+            it('Object', function() {
+                const item = SchemaItem('foo', { type: Object });
+                expect(item.type).to.equal('object');
+            });
+
+        });
     });
 
     describe('validate', function() {
 
         it('can be a function', function() {
-            SchemaItem('foo', { type: function() {} });
+            SchemaItem('foo', { validate: function() {} });
         });
 
         it('cannot be a string', function() {
             try {
-                SchemaItem('foo', { type: 'abc' });
+                SchemaItem('foo', { validate: 'abc' });
                 throw Error('Should not get here.');
             } catch (e) {
                 expect(e.code).to.equal('EIIPT');
@@ -97,8 +131,13 @@ describe('schema-item', function() {
             expect(item.error(true).length).to.be.greaterThan(0);
         });
 
-        it('validate error', function() {
+        it('validate error returns boolean', function() {
             const item = SchemaItem('foo', { validate: function() { return false } });
+            expect(item.error(true).length).to.be.greaterThan(0);
+        });
+        
+        it('validate error returns string', function() {
+            const item = SchemaItem('foo', { validate: function() { return 'fail' } });
             expect(item.error(true).length).to.be.greaterThan(0);
         });
 
