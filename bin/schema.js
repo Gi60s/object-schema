@@ -132,9 +132,9 @@ Schema.prototype.normalize = function(configuration) {
     Object.keys(schemas).forEach(function(key) {
         const schema = schemas[key];
         if (configuration.hasOwnProperty(key)) {
-            produce(schema, configuration[key], result, key);
+            result[key] = produce(schema, configuration[key]);
         } else if (schema.hasOwnProperty('default')) {
-            produce(schema, schema.default, result, key);
+            result[key] = produce(schema, schema.default);
         }
     });
 
@@ -184,8 +184,8 @@ function copy(value, map) {
     }
 }
 
-function produce(schema, value, store, key) {
+function produce(schema, value) {
     value = copy(value, new WeakMap());
     if (schema.transform) value = schema.transform(value);
-    store[key] = value;
+    return value;
 }
