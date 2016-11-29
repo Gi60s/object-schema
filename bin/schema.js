@@ -59,7 +59,7 @@ function Schema (schemata) {
 
 /**
  * Get all errors associated with the provided configuration.
- * @param {object} [configuration]
+ * @param {object} [configuration={}]
  * @returns {string[]}
  */
 Schema.prototype.errors = function(configuration) {
@@ -82,10 +82,16 @@ Schema.prototype.errors = function(configuration) {
             const help = schemaItem.help;
             error = 'Missing required configuration property: ' + key + '.' + (help ? ' ' + help : '');
             errors.push(error);
+
+        // validate provided value
+        } else if (configuration.hasOwnProperty(key)) {
+            values[key] = configuration[key];
+            error = schemaItem.error(values[key]);
+            if (error) errors.push(error);
             
-        // validate value
-        } else {
-            values[key] = configuration.hasOwnProperty(key) ? configuration[key] : schemaItem.default;
+        // validate default value
+        } else if (schemaItem.hasDefault) {
+            values[key] = schemaItem.default;
             error = schemaItem.error(values[key]);
             if (error) errors.push(error);
         }
@@ -112,7 +118,7 @@ Schema.prototype.errors = function(configuration) {
 
 /**
  * Determine if the entire configuration is valid.
- * @param {object} configuration
+ * @param {object} [configuration={}]
  * @returns {boolean}
  */
 Schema.prototype.isValid = function(configuration) {
@@ -123,11 +129,12 @@ Schema.prototype.isValid = function(configuration) {
  * Merge default values with configuration into a new object and run it through validation before returning.
  * @property
  * @name Schema#normalize
- * @param {object} configuration
+ * @param {object} [configuration={}]
  * @returns {object}
  * @throws {Error}
  */
 Schema.prototype.normalize = function(configuration) {
+    if (!configuration) configuration = {};
     this.validate(configuration);
 
     const result = {};
@@ -145,8 +152,8 @@ Schema.prototype.normalize = function(configuration) {
 };
 
 /**
- * Test the configuration for validity and throw any errors encountered.
- * @param {object} configuration
+ * Test the configuration for validity and throws an Error if any errors are encountered.
+ * @param {object} [configuration={}]
  * @throws {Error}
  */
 Schema.prototype.validate = function(configuration) {

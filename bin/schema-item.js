@@ -15,6 +15,7 @@
  *    limitations under the License.
  **/
 'use strict';
+var Schema;
 
 module.exports = SchemaItem;
 
@@ -28,9 +29,10 @@ module.exports = SchemaItem;
 function SchemaItem (name, configuration) {
     const config = Object.assign({}, configuration || {});
     const schemaItem = Object.create(SchemaItem.prototype);
+    const hasDefault = config.hasOwnProperty('default');
 
     // default value
-    if (config.hasOwnProperty('default')) {
+    if (hasDefault) {
         if (config.required) {
             const err = Error('Invalid configuration for property: ' + name + '. Cannot make required and provide a default value.');
             err.code = 'EICONF';
@@ -74,6 +76,18 @@ function SchemaItem (name, configuration) {
         }
     }
 
+    // schema
+    if (config.schema) {
+        if (!Schema) Schema = require('./schema');
+        if (typeof config.schema !== 'object' || 
+            (config.schema.constructor !== Object && !(config.schema instanceof Schema))) {
+            
+            const err = Error(SchemaItem.errorMessage('schema', config.schema, 'Expected a plain object or an object-schemata object.'));
+            err.code = 'EIIPT';
+            throw err;
+        }
+    }
+
     // validate
     if (config.validate && typeof config.validate !== 'function') {
         const err = Error(SchemaItem.errorMessage('validate', config.validate, 'Expected a function'));
@@ -101,6 +115,16 @@ function SchemaItem (name, configuration) {
              * @type {boolean}
              */
             value: config.validate ? callbackArguments(config.validate) > 1 : false,
+            writable: false
+        },
+
+        hasDefault: {
+            /**
+             * @property
+             * @name SchemaItem#hasDefault
+             * @type {string}
+             */
+            value: hasDefault,
             writable: false
         },
 
