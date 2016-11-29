@@ -122,7 +122,7 @@ function SchemaItem (name, configuration) {
             /**
              * @property
              * @name SchemaItem#hasDefault
-             * @type {string}
+             * @type {boolean}
              */
             value: hasDefault,
             writable: false
