@@ -35,7 +35,7 @@ function SchemaItem (name, configuration) {
     }
 
     // help
-    if (config.help && typeof config.help !== 'string' && typeof config.help !== 'function') throw Error(errorMessage('help', config.help, 'Expected a string or a function'));
+    if (config.help && typeof config.help !== 'string' && typeof config.help !== 'function') throw Error(SchemaItem.errorMessage('help', config.help, 'Expected a string or a function'));
     if (typeof config.help === 'string') {
         const helpValue = config.help;
         config.help = function() { return helpValue; };
@@ -46,13 +46,13 @@ function SchemaItem (name, configuration) {
     config.required = !!config.required;
 
     // transform
-    if (config.transform && typeof config.transform !== 'function') throw Error(errorMessage('transform', config.transform, 'Expected a function'));
+    if (config.transform && typeof config.transform !== 'function') throw Error(SchemaItem.errorMessage('transform', config.transform, 'Expected a function'));
 
     // type
     if (config.type) {
         const types = ['boolean', 'function', 'number', 'string', 'symbol', 'object'];
-        if (typeof config.type !== 'function' && types.indexOf(config.type) !== -1) {
-            throw Error(errorMessage('type', config.type, 'Expected a function or one of: ' + types.join(', ')));
+        if (typeof config.type !== 'function' && types.indexOf(config.type) === -1) {
+            throw Error(SchemaItem.errorMessage('type', config.type, 'Expected a function or one of: ' + types.join(', ')));
         }
         switch (config.type) {
             case Boolean:   config.type = 'boolean';    break;
@@ -65,7 +65,7 @@ function SchemaItem (name, configuration) {
     }
 
     // validate
-    if (config.validate && typeof config.validate !== 'function') throw Error(errorMessage('validate', config.validate, 'Expected a function'));
+    if (config.validate && typeof config.validate !== 'function') throw Error(SchemaItem.errorMessage('validate', config.validate, 'Expected a function'));
 
     // define properties
     Object.defineProperties(schemaItem, {
@@ -86,7 +86,7 @@ function SchemaItem (name, configuration) {
              * @name SchemaItem#doubleValidate
              * @type {boolean}
              */
-            value: config.validate ? callbackArguments(config.validate).length > 1 : false,
+            value: config.validate ? callbackArguments(config.validate) > 1 : false,
             writable: false
         },
 
@@ -163,20 +163,26 @@ SchemaItem.prototype.error = function(value) {
     const type = this.type;
 
     // validate the type of the value
-    if (!(typeof type === 'string' && typeof value !== type) && !(type && !(value instanceof type))) {
-        return errorMessage(this.name, value, this.help(value));
+    if (type && !(typeof type === 'string' && typeof value === type) && !(type instanceof Function && value instanceof type)) {
+        const expects = 'Invalid type. ' +
+            (typeof type === 'string'
+                ? 'Expected a ' + type
+                : 'Expected an instance of ' + type.name) +
+            '.';
+        const actual = value instanceof Object ? 'an instance of ' + value.constructor.name : value;
+        return SchemaItem.errorMessage(this.name, actual, expects);
     }
 
     if (this.validate) {
         const valid = this.validate(value);
-        if (valid === false) return errorMessage(this.name, value, this.help(value));
-        if (typeof valid === 'string') return errorMessage(this.name, value, valid);
+        if (valid === false) return SchemaItem.errorMessage(this.name, value, this.help(value));
+        if (typeof valid === 'string') return SchemaItem.errorMessage(this.name, value, valid);
     }
 
     return '';
 };
 
-SchemaItem.errorMessage = function errorMessage(property, actual, expected) {
+SchemaItem.errorMessage = function(property, actual, expected) {
     var result = 'Invalid configuration value for property: ' + property + '.';
     if (expected) result += ' ' + expected;
     if (arguments.length > 1) result += ' Received: ' + actual;

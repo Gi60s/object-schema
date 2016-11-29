@@ -19,6 +19,12 @@ const SchemaItem            = require('./schema-item');
 
 module.exports = Schema;
 
+/**
+ * Create a schema.
+ * @param schemata
+ * @returns {Schema}
+ * @constructor
+ */
 function Schema (schemata) {
     const schema = Object.create(Schema.prototype);
     const data = {};
@@ -44,7 +50,7 @@ function Schema (schemata) {
      * @type {object}
      */
     Object.defineProperty(schema, 'configuration', {
-        value: Object.assign({}, config),
+        value: copy(schemata, new WeakMap()),
         writable: false
     });
     
@@ -112,6 +118,8 @@ Schema.prototype.isValid = function(configuration) {
 
 /**
  * Merge default values with configuration into a new object and run it through validation before returning.
+ * @property
+ * @name Schema#normalize
  * @param {object} configuration
  * @returns {object}
  * @throws {Error}
@@ -119,21 +127,18 @@ Schema.prototype.isValid = function(configuration) {
 Schema.prototype.normalize = function(configuration) {
     this.validate(configuration);
 
-    // populate errors array
-    Object.keys(data)
-        .forEach(function(key) {
-            const schemaItem = data[key];
+    const result = {};
+    const schemas = this.schemas;
+    Object.keys(schemas).forEach(function(key) {
+        const schema = schemas[key];
+        if (configuration.hasOwnProperty(key)) {
+            produce(schema, configuration[key], result, key);
+        } else if (schema.hasOwnProperty('default')) {
+            produce(schema, schema.default, result, key);
+        }
+    });
 
-            // validate that required properties are given a value
-            if (schemaItem.required && !configuration.hasOwnProperty(key)) {
-                const help = schemaItem.help();
-                errors.push('Missing required configuration property: ' + key + '.' + (help ? ' ' + help : ''));
-            }
-
-            const value = configuration.hasOwnProperty(key) ? configuration[key] : schemaItem.default;
-            const error = schemaItem.error(value);
-            if (error) errors.push(error);
-        });
+    return result;
 };
 
 /**
@@ -146,3 +151,37 @@ Schema.prototype.validate = function(configuration) {
     if (errors.length > 0) throw Error('Configuration has one or more errors:\n\t' + errors.join('\n\t'));
 };
 
+function copy(value, map) {
+    if (Array.isArray(value)) {
+        if (map.has(value)) {
+            return map.get(value);
+        } else {
+            const ar = [];
+            map.set(value, ar);
+            value.forEach(function (v, i) {
+                ar[i] = copy(v, map);
+            });
+            return ar;
+        }
+    } else if (typeof value === 'object' && value.constructor === Object) {
+        if (value === null) return null;
+        if (map.has(value)) {
+            return map.get(value);
+        } else {
+            const obj = {};
+            map.set(value, obj);
+            Object.keys(value).forEach(function(key) {
+                obj[key] = copy(value[key], map);
+            });
+            return obj;
+        }
+    } else {
+        return value;
+    }
+}
+
+function produce(schema, value, store, key) {
+    value = copy(value, new WeakMap());
+    if (schema.transform) value = schema.transform(value);
+    store[key] = value;
+}
