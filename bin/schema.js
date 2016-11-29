@@ -59,7 +59,7 @@ function Schema (schemata) {
 
 /**
  * Get all errors associated with the provided configuration.
- * @param {object} configuration
+ * @param {object} [configuration]
  * @returns {string[]}
  */
 Schema.prototype.errors = function(configuration) {
@@ -68,6 +68,9 @@ Schema.prototype.errors = function(configuration) {
     const schemas = this.schemas;
     const keys = Object.keys(schemas);
     const values = {};
+
+    // if no configuration specified then initialize to empty configuration
+    if (!configuration) configuration = {};
     
     // populate errors array
     keys.forEach(function(key) {
