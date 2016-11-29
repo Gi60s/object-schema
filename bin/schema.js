@@ -143,7 +143,7 @@ Schema.prototype.normalize = function(configuration) {
         const schema = schemas[key];
         if (configuration.hasOwnProperty(key)) {
             result[key] = produce(schema, configuration[key]);
-        } else if (schema.hasOwnProperty('default')) {
+        } else if (schema.hasDefault) {
             result[key] = produce(schema, schema.default);
         }
     });
