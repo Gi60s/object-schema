@@ -211,10 +211,10 @@ SchemaItem.errorMessage = function(property, actual, expected) {
  * @returns {number}
  */
 function callbackArguments(callback) {
-    const rx = /^(?:function)?\s?\(([\s\S]*?)\)/;
+    const rx = /^(?:function)?\s?(?:\(([\s\S]*?)\)|([\s\S]*?)\s*=>)/;
     const match = rx.exec(callback.toString());
 
-    var args = match[1];
+    var args = typeof match[1] === 'string' ? match[1] : match[2];
     if (/^\([\s\S]*?\)$/.test(args)) args = args.substring(1, args.length - 1);
     args = args.split(/,\s?/).filter(function(v) { return v.length > 0 });
 
