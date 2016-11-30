@@ -33,7 +33,14 @@ function Schema (schemata) {
     Object.keys(schemata)
         .forEach(function(key) {
             const config = copy(schemata[key], new WeakMap());
-            if (config.schema && config.schema instanceof Schema) config.schema = config.schema.configuration;
+            if (config.schema) {
+                if (config.schema.constructor === Object) config.schema = Schema(config.schema);
+                if (!(config.schema instanceof Schema)) {
+                    const err = new Error(SchemaItem.errorMessage('schema', config.schema, 'Expected a plain object or a object-schemata object.'));
+                    err.code = 'ESIPT';
+                    throw err;
+                }
+            }
             data[key] = SchemaItem(key, config);
         });
 
