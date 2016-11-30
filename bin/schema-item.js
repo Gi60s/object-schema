@@ -193,10 +193,12 @@ function SchemaItem (name, configuration) {
 /**
  * Get details about any errors associated with the value provided.
  * @param {*} value
+ * @param {string} [prefix='']
  * @returns {string}
  */
-SchemaItem.prototype.error = function(value) {
+SchemaItem.prototype.error = function(value, prefix) {
     const type = this.type;
+    if (!prefix) prefix = '';
 
     // validate the type of the value
     if (type && !(typeof type === 'string' && typeof value === type) && !(type instanceof Function && value instanceof type)) {
@@ -206,13 +208,14 @@ SchemaItem.prototype.error = function(value) {
                 : 'Expected an instance of ' + type.name) +
             '.';
         const actual = value instanceof Object ? 'an instance of ' + value.constructor.name : value;
-        return SchemaItem.errorMessage(this.name, actual, expects);
+        return prefix + SchemaItem.errorMessage(this.name, actual, expects);
     }
 
+    // run validate function
     if (this.validate) {
         const valid = this.validate(value);
-        if (valid === false) return SchemaItem.errorMessage(this.name, value, this.help);
-        if (typeof valid === 'string') return SchemaItem.errorMessage(this.name, value, valid);
+        if (valid === false) return prefix + SchemaItem.errorMessage(this.name, value, this.help);
+        if (typeof valid === 'string') return prefix + SchemaItem.errorMessage(this.name, value, valid);
     }
 
     return '';

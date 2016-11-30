@@ -70,14 +70,18 @@ function Schema (schemata) {
 /**
  * Get all errors associated with the provided configuration.
  * @param {object} [configuration={}]
+ * @param {string} [prefix='']
  * @returns {string[]}
  */
-Schema.prototype.errors = function(configuration) {
+Schema.prototype.errors = function(configuration, prefix) {
     const doubleValidate = [];
     const errors = [];
     const schemas = this.schemas;
     const keys = Object.keys(schemas);
     const values = {};
+
+    // initialize prefix
+    if (!prefix) prefix = '';
 
     // if no configuration specified then initialize to empty configuration
     if (!configuration) configuration = {};
@@ -91,19 +95,26 @@ Schema.prototype.errors = function(configuration) {
         if (schemaItem.required && !configuration.hasOwnProperty(key)) {
             const help = schemaItem.help;
             error = 'Missing required configuration property: ' + key + '.' + (help ? ' ' + help : '');
-            errors.push(error);
+            errors.push(prefix + error);
 
         // validate provided value
         } else if (configuration.hasOwnProperty(key)) {
             values[key] = configuration[key];
-            error = schemaItem.error(values[key]);
-            if (error) errors.push(error);
+            error = schemaItem.error(values[key], prefix + '  ');
+            if (error) {
+                errors.push(error);
+            } else if (schemaItem.schema) {
+                const ar = schemaItem.schema.errors(values[key], prefix + '  ');
+                if (ar.length > 0) {
+                    errors.push(prefix + 'Configuration has one or more errors for property: ' + key + '\n' + ar.join('\n'));
+                }
+            }
             
         // validate default value
         } else if (schemaItem.hasDefault) {
             values[key] = schemaItem.default;
-            error = schemaItem.error(values[key]);
-            if (error) errors.push(error);
+            error = schemaItem.error(values[key], prefix + '  ');
+            if (error) errors.push(prefix + error);
         }
         
         // if it needs double validation then store it's key
@@ -152,7 +163,11 @@ Schema.prototype.normalize = function(configuration) {
     Object.keys(schemas).forEach(function(key) {
         const schema = schemas[key];
         if (configuration.hasOwnProperty(key)) {
-            result[key] = produce(schema, configuration[key]);
+            if (schemas[key].schema) {
+                result[key] = schemas[key].schema.normalize(configuration[key]);
+            } else {
+                result[key] = produce(schema, configuration[key]);
+            }
         } else if (schema.hasDefault) {
             result[key] = produce(schema, schema.default);
         }
@@ -167,9 +182,9 @@ Schema.prototype.normalize = function(configuration) {
  * @throws {Error}
  */
 Schema.prototype.validate = function(configuration) {
-    const errors = this.errors(configuration);
+    const errors = this.errors(configuration, '  ');
     if (errors.length > 0) {
-        const err = Error('Configuration has one or more errors:\n\t' + errors.join('\n\t'));
+        const err = Error('Configuration has one or more errors:\n' + errors.join('\n'));
         err.code = 'ESCFG';
         throw err;
     }
