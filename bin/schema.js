@@ -29,9 +29,12 @@ function Schema (schemata) {
     const schema = Object.create(Schema.prototype);
     const data = {};
         
+    // take the provided schema object and build schema items
     Object.keys(schemata)
         .forEach(function(key) {
-            data[key] = SchemaItem(key, schemata[key]);
+            const config = copy(schemata[key], new WeakMap());
+            if (config.schema && config.schema instanceof Schema) config.schema = config.schema.configuration;
+            data[key] = SchemaItem(key, config);
         });
 
     /**

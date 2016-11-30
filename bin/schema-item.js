@@ -15,6 +15,7 @@
  *    limitations under the License.
  **/
 'use strict';
+var Schema;
 
 module.exports = SchemaItem;
 
@@ -78,7 +79,7 @@ function SchemaItem (name, configuration) {
     // schema
     if (config.schema) {
         if (typeof config.schema !== 'object' || config.schema.constructor !== Object) {
-            const err = Error(SchemaItem.errorMessage('schema', config.schema, 'Expected a plain object or an object-schemata object.'));
+            const err = Error(SchemaItem.errorMessage('schema', config.schema, 'Expected a plain object.'));
             err.code = 'EIIPT';
             throw err;
         }
@@ -151,6 +152,16 @@ function SchemaItem (name, configuration) {
              * @type {boolean}
              */
             value: config.required,
+            writable: false
+        },
+
+        schema: {
+            /**
+             * @property
+             * @name SchemaItem#schema
+             * @type {boolean}
+             */
+            value: config.schema,
             writable: false
         },
 
