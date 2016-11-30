@@ -76,15 +76,6 @@ function SchemaItem (name, configuration) {
         }
     }
 
-    // schema
-    if (config.schema) {
-        if (typeof config.schema !== 'object' || config.schema.constructor !== Object) {
-            const err = Error(SchemaItem.errorMessage('schema', config.schema, 'Expected a plain object.'));
-            err.code = 'EIIPT';
-            throw err;
-        }
-    }
-
     // validate
     if (config.validate && typeof config.validate !== 'function') {
         const err = Error(SchemaItem.errorMessage('validate', config.validate, 'Expected a function'));
