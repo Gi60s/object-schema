@@ -60,12 +60,17 @@ function SchemaItem (name, configuration) {
 
     // type
     if (config.type) {
+        const primitives = [Boolean, Number, String, Symbol];
         const types = ['boolean', 'function', 'number', 'string', 'symbol', 'object'];
-        if (typeof config.type !== 'function' && types.indexOf(config.type) === -1) {
+
+        // if the type if not a constructor function or one of the expected types then throw an error
+        if (config.type !== 'function' && types.indexOf(config.type) === -1) {
             const err = Error(SchemaItem.errorMessage('type', config.type, 'Expected a function or one of: ' + types.join(', ')));
             err.code = 'EIIPT';
             throw err;
         }
+
+        // convert string values into their equivalent constructor functions
         switch (config.type) {
             case Boolean:   config.type = 'boolean';    break;
             case Function:  config.type = 'function';   break;
@@ -73,6 +78,13 @@ function SchemaItem (name, configuration) {
             case String:    config.type = 'string';     break;
             case Symbol:    config.type = 'symbol';     break;
             case Object:    config.type = 'object';     break;
+        }
+
+        // validate that primitives are not assigned a schema
+        if (config.schema && primitives.indexOf(config.type)) {
+            const err = Error(SchemaItem.errorMessage('type', config.type, 'If the schema is defined then the type cannot be a primitive.'));
+            err.code = 'EITPC';
+            throw err;
         }
     }
 
@@ -150,7 +162,7 @@ function SchemaItem (name, configuration) {
             /**
              * @property
              * @name SchemaItem#schema
-             * @type {boolean}
+             * @type {object}
              */
             value: config.schema,
             writable: false
