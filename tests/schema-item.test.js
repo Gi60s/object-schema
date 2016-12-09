@@ -2,13 +2,13 @@
 const expect        = require('chai').expect;
 const SchemaItem    = require('../bin/schema-item');
 
-describe('schema-item', function() {
+describe('schema-item', () => {
 
-    it('does not require any options', function() {
+    it('does not require any options', () => {
         SchemaItem('foo');
     });
     
-    it('cannot have default and required', function() {
+    it('cannot have default and required', () => {
         try {
             SchemaItem('foo', { default: 0, required: true });
             throw Error('Should not get here.');
@@ -17,15 +17,15 @@ describe('schema-item', function() {
         }
     });
 
-    describe('help', function() {
+    describe('help', () => {
 
-        it('can be a string', function() {
+        it('can be a string', () => {
             SchemaItem('foo', { help: 'hello' });
         });
 
-        it('can not be a function', function() {
+        it('can not be a function', () => {
             try {
-                SchemaItem('foo', { help: function() {} });
+                SchemaItem('foo', { help: () => {} });
                 throw Error('Should not get here.');
             } catch (e) {
                 expect(e.code).to.equal('EIIPT');
@@ -33,13 +33,13 @@ describe('schema-item', function() {
         })
     });
 
-    describe('transform', function() {
+    describe('transform', () => {
 
-        it('can be a function', function() {
-            SchemaItem('foo', { transform: function() {} });
+        it('can be a function', () => {
+            SchemaItem('foo', { transform: () => {} });
         });
 
-        it('can not be a string', function() {
+        it('can not be a string', () => {
             try {
                 SchemaItem('foo', { transform: 'hello' });
                 throw Error('Should not get here.');
@@ -49,17 +49,17 @@ describe('schema-item', function() {
         })
     });
 
-    describe('type', function() {
+    describe('type', () => {
 
-        it('can be a function', function() {
-            SchemaItem('foo', { type: function() {} });
+        it('can be a function', () => {
+            SchemaItem('foo', { type: () => {} });
         });
 
-        it('can be a string matching typeof possibilities', function() {
+        it('can be a string matching typeof possibilities', () => {
             SchemaItem('foo', { type: 'number' });
         });
 
-        it('cannot be an arbitrary string', function() {
+        it('cannot be an arbitrary string', () => {
             try {
                 SchemaItem('foo', { type: 'abc' });
                 throw Error('Should not get here.');
@@ -68,34 +68,34 @@ describe('schema-item', function() {
             }
         });
 
-        describe('converts primitive functions to strings', function() {
+        describe('converts primitive functions to strings', () => {
 
-            it('Boolean', function() {
+            it('Boolean', () => {
                 const item = SchemaItem('foo', { type: Boolean });
                 expect(item.type).to.equal('boolean');
             });
 
-            it('Function', function() {
+            it('Function', () => {
                 const item = SchemaItem('foo', { type: Function });
                 expect(item.type).to.equal('function');
             });
 
-            it('Number', function() {
+            it('Number', () => {
                 const item = SchemaItem('foo', { type: Number });
                 expect(item.type).to.equal('number');
             });
 
-            it('String', function() {
+            it('String', () => {
                 const item = SchemaItem('foo', { type: String });
                 expect(item.type).to.equal('string');
             });
 
-            it('Symbol', function() {
+            it('Symbol', () => {
                 const item = SchemaItem('foo', { type: Symbol });
                 expect(item.type).to.equal('symbol');
             });
 
-            it('Object', function() {
+            it('Object', () => {
                 const item = SchemaItem('foo', { type: Object });
                 expect(item.type).to.equal('object');
             });
@@ -103,13 +103,13 @@ describe('schema-item', function() {
         });
     });
 
-    describe('validate', function() {
+    describe('validate', () => {
 
-        it('can be a function', function() {
-            SchemaItem('foo', { validate: function() {} });
+        it('can be a function', () => {
+            SchemaItem('foo', { validate: () => {} });
         });
 
-        it('cannot be a string', function() {
+        it('cannot be a string', () => {
             try {
                 SchemaItem('foo', { validate: 'abc' });
                 throw Error('Should not get here.');
@@ -119,25 +119,25 @@ describe('schema-item', function() {
         });
     });
 
-    describe('#error', function() {
+    describe('#error', () => {
 
-        it('no errors', function() {
+        it('no errors', () => {
             const item = SchemaItem('foo', {});
             expect(item.error({ x: true })).to.equal('');
         });
 
-        it('type error', function() {
+        it('type error', () => {
             const item = SchemaItem('foo', { type: Number });
             expect(item.error(true).length).to.be.greaterThan(0);
         });
 
-        it('validate error returns boolean', function() {
-            const item = SchemaItem('foo', { validate: function() { return false } });
+        it('validate error returns boolean', () => {
+            const item = SchemaItem('foo', { validate: () => { return false } });
             expect(item.error(true).length).to.be.greaterThan(0);
         });
         
-        it('validate error returns string', function() {
-            const item = SchemaItem('foo', { validate: function() { return 'fail' } });
+        it('validate error returns string', () => {
+            const item = SchemaItem('foo', { validate: () => { return 'fail' } });
             expect(item.error(true).length).to.be.greaterThan(0);
         });
 
