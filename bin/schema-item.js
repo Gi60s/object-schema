@@ -64,7 +64,7 @@ function SchemaItem (name, configuration) {
         const types = ['boolean', 'function', 'number', 'string', 'symbol', 'object'];
 
         // if the type if not a constructor function or one of the expected types then throw an error
-        if (config.type !== 'function' && types.indexOf(config.type) === -1) {
+        if (typeof config.type !== 'function' && types.indexOf(config.type) === -1) {
             const err = Error(SchemaItem.errorMessage('type', config.type, 'Expected a function or one of: ' + types.join(', ')));
             err.code = 'EIIPT';
             throw err;
@@ -81,7 +81,7 @@ function SchemaItem (name, configuration) {
         }
 
         // validate that primitives are not assigned a schema
-        if (config.schema && primitives.indexOf(config.type)) {
+        if (config.schema && primitives.indexOf(config.type) !== -1) {
             const err = Error(SchemaItem.errorMessage('type', config.type, 'If the schema is defined then the type cannot be a primitive.'));
             err.code = 'EITPC';
             throw err;
