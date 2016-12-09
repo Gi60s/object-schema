@@ -32,7 +32,7 @@ function Schema (schemata) {
     // take the provided schema object and build schema items
     Object.keys(schemata)
         .forEach(function(key) {
-            const config = copy(schemata[key], new WeakMap());
+            const config = copy(schemata[key]);
             if (config.schema) {
                 if (config.schema.constructor === Object) config.schema = Schema(config.schema);
                 if (!(config.schema instanceof Schema)) {
@@ -60,7 +60,7 @@ function Schema (schemata) {
      * @type {object}
      */
     Object.defineProperty(schema, 'configuration', {
-        value: copy(schemata, new WeakMap()),
+        value: copy(schemata),
         writable: false
     });
     
@@ -89,7 +89,7 @@ Schema.prototype.errors = function(configuration, prefix) {
     // populate errors array
     keys.forEach(function(key) {
         const schemaItem = schemas[key];
-        var error;
+        let error;
         
         // validate that required properties are given a value
         if (schemaItem.required && !configuration.hasOwnProperty(key)) {
@@ -104,9 +104,18 @@ Schema.prototype.errors = function(configuration, prefix) {
             if (error) {
                 errors.push(error);
             } else if (schemaItem.schema) {
-                const ar = schemaItem.schema.errors(values[key], prefix + '  ');
-                if (ar.length > 0) {
-                    errors.push(prefix + 'Configuration has one or more errors for property: ' + key + '\n' + ar.join('\n'));
+                if (schemaItem.type === Array) {
+                    for (let i = 0; i < values[key].length; i++) {
+                        const ar = schemaItem.schema.errors(values[key][i], prefix + '[' + i + ']  ');
+                        if (ar.length > 0) {
+                            errors.push(prefix + 'Configuration has one or more errors for property: ' + key + '[' + i + ']\n' + ar.join('\n'));
+                        }
+                    }
+                } else {
+                    const ar = schemaItem.schema.errors(values[key], prefix + '  ');
+                    if (ar.length > 0) {
+                        errors.push(prefix + 'Configuration has one or more errors for property: ' + key + '\n' + ar.join('\n'));
+                    }
                 }
             }
             
@@ -160,17 +169,31 @@ Schema.prototype.normalize = function(configuration) {
 
     const result = {};
     const schemas = this.schemas;
+    const transforms = [];
+
     Object.keys(schemas).forEach(function(key) {
         const schema = schemas[key];
         if (configuration.hasOwnProperty(key)) {
             if (schemas[key].schema) {
-                result[key] = schemas[key].schema.normalize(configuration[key]);
+                if (schemas[key].type === Array) {
+                    result[key] = configuration[key].map(function(value) {
+                        return schemas[key].schema.normalize(value);
+                    });
+                } else {
+                    result[key] = schemas[key].schema.normalize(configuration[key]);
+                }
             } else {
-                result[key] = produce(schema, configuration[key]);
+                result[key] = copy(configuration[key]);
             }
+            if (schema.transform) transforms.push(key);
         } else if (schema.hasDefault) {
-            result[key] = produce(schema, schema.default);
+            result[key] = copy(schema.default);
+            if (schema.transform) transforms.push(key);
         }
+    });
+
+    transforms.forEach(function(key) {
+        result[key] = schemas[key].transform(result[key], result);
     });
 
     return result;
@@ -190,37 +213,37 @@ Schema.prototype.validate = function(configuration) {
     }
 };
 
-function copy(value, map) {
-    if (Array.isArray(value)) {
-        if (map.has(value)) {
-            return map.get(value);
+function copy(value) {
+    var map;
+    const inner = function(value) {
+        if (Array.isArray(value)) {
+            if (!map) map = new WeakMap();
+            if (map.has(value)) {
+                return map.get(value);
+            } else {
+                const ar = [];
+                map.set(value, ar);
+                value.forEach(function (v, i) {
+                    ar[i] = inner(v, map);
+                });
+                return ar;
+            }
+        } else if (typeof value === 'object' && value.constructor === Object) {
+            if (value === null) return null;
+            if (!map) map = new WeakMap();
+            if (map.has(value)) {
+                return map.get(value);
+            } else {
+                const obj = {};
+                map.set(value, obj);
+                Object.keys(value).forEach(function(key) {
+                    obj[key] = inner(value[key], map);
+                });
+                return obj;
+            }
         } else {
-            const ar = [];
-            map.set(value, ar);
-            value.forEach(function (v, i) {
-                ar[i] = copy(v, map);
-            });
-            return ar;
+            return value;
         }
-    } else if (typeof value === 'object' && value.constructor === Object) {
-        if (value === null) return null;
-        if (map.has(value)) {
-            return map.get(value);
-        } else {
-            const obj = {};
-            map.set(value, obj);
-            Object.keys(value).forEach(function(key) {
-                obj[key] = copy(value[key], map);
-            });
-            return obj;
-        }
-    } else {
-        return value;
-    }
-}
-
-function produce(schema, value) {
-    value = copy(value, new WeakMap());
-    if (schema.transform) value = schema.transform(value);
-    return value;
+    };
+    return inner(value);
 }
