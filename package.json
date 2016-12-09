@@ -15,7 +15,8 @@
     "nyc": "^10.0.0"
   },
   "scripts": {
-    "test": "nyc mocha tests/*.js && nyc report --reporter=text-lcov | coveralls"
+    "test": "mocha tests/*.js",
+    "coverage": "nyc mocha tests/*.js"
   },
   "repository": {
     "type": "git",
