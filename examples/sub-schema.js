@@ -33,11 +33,18 @@ const schema = Schema({
     pet: {
         schema: {
             name: {
+                type: String
+            },
+            type: {
                 type: String,
                 required: true
             },
-            type: {
-                type: String
+            foo: {
+                schema: {
+                    age: {
+                        type: Number
+                    }
+                }
             }
         }
     },
@@ -53,6 +60,12 @@ const config = {
     person: {
         name: 'Bob',
         age: 51
+    },
+    pet: {
+        type: 'cat',
+        foo: {
+            age: 5
+        }
     },
     relatives: [
         { name: 'Bob Jr.', age: 15, birthOrder: 1 },
