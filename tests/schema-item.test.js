@@ -68,6 +68,15 @@ describe('schema-item', () => {
             }
         });
 
+        it('define schema on primitive throws error', () => {
+            try {
+                SchemaItem('foo', { type: String, schema: {} });
+                throw Error('Should not get here.');
+            } catch (e) {
+                expect(e.code).to.equal('EITPC');
+            }
+        });
+
         describe('converts primitive functions to strings', () => {
 
             it('Boolean', () => {
