@@ -15,7 +15,6 @@
  *    limitations under the License.
  **/
 'use strict';
-var Schema;
 
 module.exports = SchemaItem;
 
@@ -60,7 +59,7 @@ function SchemaItem (name, configuration) {
 
     // type
     if (config.type) {
-        const primitives = [Boolean, Number, String, Symbol];
+        const primitives = ['boolean', 'number', 'string', 'symbol'];
         const types = ['boolean', 'function', 'number', 'string', 'symbol', 'object'];
 
         // if the type if not a constructor function or one of the expected types then throw an error
@@ -234,7 +233,7 @@ SchemaItem.prototype.error = function(value, prefix) {
 };
 
 SchemaItem.errorMessage = function(property, actual, expected) {
-    var result = 'Invalid configuration value for property: ' + property + '.';
+    let result = 'Invalid configuration value for property: ' + property + '.';
     if (expected) result += ' ' + expected;
     if (arguments.length > 1) result += ' Received: ' + actual;
     return result;
@@ -251,7 +250,7 @@ function callbackArguments(callback) {
     const rx = /^(?:function)?\s?(?:\(([\s\S]*?)\)|([\s\S]*?)\s*=>)/;
     const match = rx.exec(callback.toString());
 
-    var args = typeof match[1] === 'string' ? match[1] : match[2];
+    let args = typeof match[1] === 'string' ? match[1] : match[2];
     if (/^\([\s\S]*?\)$/.test(args)) args = args.substring(1, args.length - 1);
     args = args.split(/,\s?/).filter(function(v) { return v.length > 0 });
 
