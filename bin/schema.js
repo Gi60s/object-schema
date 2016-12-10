@@ -214,7 +214,7 @@ Schema.prototype.validate = function(configuration) {
 };
 
 function copy(value) {
-    var map;
+    let map;
     const inner = function(value) {
         if (Array.isArray(value)) {
             if (!map) map = new WeakMap();
