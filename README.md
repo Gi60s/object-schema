@@ -6,7 +6,7 @@ This module seeks to solve those problems.
 
 **Important Note**
 
-A more comprehensive solution [Fully-Typed](https://www.npmjs.com/package/fully-typed) has been developed that supports:
+A more comprehensive solution, [Fully-Typed](https://www.npmjs.com/package/fully-typed), has been developed that supports:
   
 - Everything that this module supports
 - Type validation
